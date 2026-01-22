@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>لعبة اذكر الآية التالية – جزء عم</title>
+  <style>
+    body {
+      font-family: Tahoma, Arial;
+      background: linear-gradient(#f1f8e9, #ffffff);
+      text-align: center;
+      padding: 20px;
+    }
+    .game-box {
+      max-width: 900px;
+      margin: auto;
+      background: #fff;
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    }
+    h1 { color: #2e7d32; }
+    select {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+    .ayah {
+      font-size: 22px;
+      margin: 20px 0;
+    }
+    .option {
+      display: block;
+      background: #e8f5e9;
+      border: none;
+      border-radius: 12px;
+      padding: 12px;
+      margin: 10px auto;
+      font-size: 18px;
+      cursor: pointer;
+      width: 80%;
+    }
+    .option:hover { background: #c8e6c9; }
+    .score { margin-top: 15px; font-size: 18px; }
+  </style>
+</head>
+<body>
+
+<div class="game-box">
+  <h1>🌙 اذكر الآية التالية 🌙</h1>
+  <p>لعبة تعليمية من جزء عم</p>
+
+  
+
+  <div id="ayah" class="ayah"></div>
+  <div id="options"></div>
+  <div id="score" class="score"></div>
+</div>
+
+<script>
+  // مكتبة سور جزء عم (مختصرة تقنيًا – النظام يدعم الكل)
+  const surahs = {
+    "النبأ": ["عَمَّ يَتَسَاءَلُونَ","عَنِ النَّبَإِ الْعَظِيمِ","الَّذِي هُمْ فِيهِ مُخْتَلِفُونَ","كَلَّا سَيَعْلَمُونَ"],
+    "النازعات": ["وَالنَّازِعَاتِ غَرْقًا","وَالنَّاشِطَاتِ نَشْطًا","وَالسَّابِحَاتِ سَبْحًا"],
+    "عبس": ["عَبَسَ وَتَوَلَّى","أَن جَاءَهُ الْأَعْمَى","وَمَا يُدْرِيكَ لَعَلَّهُ يَزَّكَّى"],
+    "الكوثر": ["إِنَّا أَعْطَيْنَاكَ الْكَوْثَرَ","فَصَلِّ لِرَبِّكَ وَانْحَرْ","إِنَّ شَانِئَكَ هُوَ الْأَبْتَرُ"],
+    "الإخلاص": ["قُلْ هُوَ اللَّهُ أَحَدٌ","اللَّهُ الصَّمَدُ","لَمْ يَلِدْ وَلَمْ يُولَدْ","وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ"],
+    "الناس": ["قُلْ أَعُوذُ بِرَبِّ النَّاسِ","مَلِكِ النَّاسِ","إِلَٰهِ النَّاسِ","مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ"]
+  };
+
+  let questions = [];
+  let current = 0;
+  let score = 0;
+
+  function generateQuestions() {
+    let bank = [];
+    Object.values(surahs).forEach(ayahs => {
+      for (let i = 0; i < ayahs.length - 1; i++) {
+        bank.push({ q: ayahs[i], a: ayahs[i + 1] });
+      }
+    });
+
+    bank = bank.sort(() => 0.5 - Math.random()).slice(0, 10);
+
+    questions = bank.map(item => {
+      let opts = [item.a];
+      while (opts.length < 3) {
+        const randomSurah = Object.values(surahs)[Math.floor(Math.random() * Object.values(surahs).length)];
+        const randomAyah = randomSurah[Math.floor(Math.random() * randomSurah.length)];
+        if (!opts.includes(randomAyah)) opts.push(randomAyah);
+      }
+      return { question: item.q, correct: item.a, options: opts.sort(() => 0.5 - Math.random()) };
+    });
+  }
+
+  function startGame() {
+    score = 0;
+    current = 0;
+    generateQuestions();
+    loadQuestion();
+  }
+
+  function loadQuestion() {
+    if (current >= questions.length) {
+      document.getElementById('ayah').innerText = '🎉 انتهت اللعبة 🎉';
+      document.getElementById('options').innerHTML = '';
+      document.getElementById('score').innerText = `نتيجتك: ${score} / ${questions.length}`;
+      return;
+    }
+    const q = questions[current];
+    document.getElementById('ayah').innerText = q.question;
+    const optionsDiv = document.getElementById('options');
+    optionsDiv.innerHTML = '';
+    q.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'option';
+      btn.innerText = opt;
+      btn.onclick = () => checkAnswer(opt);
+      optionsDiv.appendChild(btn);
+    });
+    document.getElementById('score').innerText = `السؤال ${current + 1} من ${questions.length}`;
+  }
+
+  function checkAnswer(ans) {
+    if (ans === questions[current].correct) score++;
+    current++;
+    loadQuestion();
+  }
+
+  startGame();
+</script>
+
+</body>
+</html>
